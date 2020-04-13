@@ -1,20 +1,23 @@
-import requests
-import json
-import yaml
 from datetime import datetime, timedelta
+
+import requests
+import yaml
 
 url_temp = "http://testnet-jsonrpc.conflux-chain.org:18084/api/account/{}/minedBlockList?pageNum=1&pageSize=10";
 
-config = yaml.load(open('config.yml'), Loader = yaml.FullLoader)
-dead_bar = timedelta(seconds = int(config["alert_bar_in_secs"]))
+config = yaml.load(open('config.yml'), Loader=yaml.FullLoader)
+dead_bar = timedelta(seconds=int(config["alert_bar_in_secs"]))
+
 
 class MiningError(Exception):
     def __init__(self, message):
         self.message = message
 
+
 class RequestError(Exception):
     def __init__(self):
         pass
+
 
 def monitor(file_name):
     is_error = False
@@ -24,7 +27,7 @@ def monitor(file_name):
         for line in f:
             address = line.strip('\n')
             try:
-                data = requests.get(url_temp.format(address), timeout = 60).json()
+                data = requests.get(url_temp.format(address), timeout=60).json()
             except Exception:
                 raise RequestError
 
@@ -39,9 +42,11 @@ def monitor(file_name):
                 timestamp = data['result']['data'][0]['timestamp']
                 now_timestamp = datetime.now()
                 sec = now_timestamp - datetime.fromtimestamp(timestamp)
-                sec = max(sec, timedelta(seconds = 0))
+                sec = max(sec, timedelta(seconds=0))
 
-                msg = "{}: total mined {} blocks, latest mined block at {}, {} ago\n".format(address, total, datetime.fromtimestamp(timestamp), str(sec))
+                msg = "{}: total mined {} blocks, latest mined block at {}, {} ago\n".format(address, total,
+                                                                                             datetime.fromtimestamp(
+                                                                                                 timestamp), str(sec))
                 if sec > dead_bar:
                     is_error = True
                     error_msg += msg
@@ -50,6 +55,7 @@ def monitor(file_name):
 
     if is_error:
         raise MiningError(error_msg)
+
 
 if __name__ == '__main__':
     monitor("miner_list.txt")
