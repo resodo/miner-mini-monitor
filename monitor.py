@@ -17,7 +17,6 @@ class RequestError(Exception):
         pass
 
 def monitor(file_name):
-    raise Exception("hahahah")
     is_error = False
     error_msg = 'Something wrong in following nodes:\n'
 
