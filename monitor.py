@@ -10,8 +10,9 @@ dead_bar = timedelta(seconds=int(config["alert_bar_in_secs"]))
 
 
 class MiningError(Exception):
-    def __init__(self, message):
+    def __init__(self, message, miners):
         self.message = message
+        self.miners = miners
 
 
 class RequestError(Exception):
@@ -22,6 +23,7 @@ class RequestError(Exception):
 def monitor(file_name):
     is_error = False
     error_msg = 'Something wrong in following nodes:\n'
+    error_miners = []
 
     with open(file_name, 'r') as f:
         for line in f:
@@ -35,9 +37,11 @@ def monitor(file_name):
 
             if total == 0:
                 msg = "{}: total mined {} blocks\n".format(address, total)
-                error_msg += msg
-                is_error = True
                 print(msg)
+
+                is_error = True
+                error_msg += msg
+                error_miners.append(address)
             else:
                 timestamp = data['result']['data'][0]['timestamp']
                 now_timestamp = datetime.now()
@@ -50,11 +54,12 @@ def monitor(file_name):
                 if sec > dead_bar:
                     is_error = True
                     error_msg += msg
+                    error_miners.append(address)
 
                 print(msg)
 
     if is_error:
-        raise MiningError(error_msg)
+        raise MiningError(error_msg, error_miners)
 
 
 if __name__ == '__main__':
