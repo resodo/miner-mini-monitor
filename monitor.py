@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 url_temp = "http://testnet-jsonrpc.conflux-chain.org:18084/api/account/{}/minedBlockList?pageNum=1&pageSize=10";
 
 config = yaml.load(open('config.yml'), Loader = yaml.FullLoader)
-dead_bar = timedelta(int(config["alert_bar_in_secs"]))
+dead_bar = timedelta(seconds = int(config["alert_bar_in_secs"]))
 
 class MiningError(Exception):
     def __init__(self, message):
@@ -39,7 +39,7 @@ def monitor(file_name):
                 timestamp = data['result']['data'][0]['timestamp']
                 now_timestamp = datetime.now()
                 sec = now_timestamp - datetime.fromtimestamp(timestamp)
-                sec = max(sec, timedelta(0))
+                sec = max(sec, timedelta(seconds = 0))
 
                 msg = "{}: total mined {} blocks, latest mined block at {}, {} ago\n".format(address, total, datetime.fromtimestamp(timestamp), str(sec))
                 if sec > dead_bar:
