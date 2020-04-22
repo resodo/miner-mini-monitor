@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 import requests
 import yaml
 
-url_temp = "http://testnet-jsonrpc.conflux-chain.org:18084/api/account/{}/minedBlockList?pageNum=1&pageSize=10";
+url_temp = "http://47.102.164.229:8885/future/block/list?miner={}&pageSize=50&page=1"
 
 config = yaml.load(open('config.yml'), Loader=yaml.FullLoader)
 dead_bar = timedelta(seconds=int(config["alert_bar_in_secs"]))
@@ -43,7 +43,7 @@ def monitor(file_name):
                 error_msg += msg
                 error_miners.append(address)
             else:
-                timestamp = data['result']['data'][0]['timestamp']
+                timestamp = data['result']['list'][0]['timestamp']
                 now_timestamp = datetime.now()
                 sec = now_timestamp - datetime.fromtimestamp(timestamp)
                 sec = max(sec, timedelta(seconds=0))
